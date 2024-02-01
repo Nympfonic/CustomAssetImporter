@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34525.116
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CustomAssetImporter", "CustomAssetImporter.csproj", "{6D806499-413C-48BF-A250-E8D957BD98FB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6D806499-413C-48BF-A250-E8D957BD98FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6D806499-413C-48BF-A250-E8D957BD98FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6D806499-413C-48BF-A250-E8D957BD98FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6D806499-413C-48BF-A250-E8D957BD98FB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A6459270-7503-4FA8-89EE-201DF2B8F596}
+	EndGlobalSection
+EndGlobal
