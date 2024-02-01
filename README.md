@@ -20,6 +20,9 @@ Please *only* download the templates; the rest of the project is intended as a c
 1. Populate the `EffectsArray` field in the Inspector with your effects
 1. Export your effects bundle
 1. Place your effects bundle in this folder directory when you are packaging your mod: `BepInEx/plugins/Arys-CustomAssetImporter/assets/effects/`
+1. If everything has been done correctly, the custom effect name can then be referenced by other mods including server mods
+	- For example, say a new explosion effect was added via this framework called `rpg_explosion`
+	- A mod like Choccy's RPG-7 can now use the custom effect name `rpg_explosion` in the `ExplosionType` property of the RPG-7's item template json
 
 ## Instructions for Mod users
 
