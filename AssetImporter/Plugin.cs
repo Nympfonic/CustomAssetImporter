@@ -18,6 +18,7 @@ namespace CustomAssetImporter
             Directory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/";
 
             new AddCustomEffectsPatch().Enable();
+            new EffectsOnDestroyPatch().Enable();
         }
     }
 }
