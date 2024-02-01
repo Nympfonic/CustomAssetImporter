@@ -1,23 +1,27 @@
-# CustomAssetImporter
+# Arys-CustomAssetImporter
 
-The purpose of this framework is to simplify the process for mod creators who wish to implement custom assets such as (particle system) effects
-This client mod framework will load any asset bundles placed within the specified folders and import them into the game.
+The purpose of this framework is to simplify the process for mod creators who wish to implement custom assets such as (particle system) effects into SPT-AKI.
+
+This client mod framework will load any Unity asset bundles placed within the specified folders and import them into the game.
 
 ## Instructions for Modders
 
 You will need to add the corresponding template script/component for whatever type of asset you want to add into the game.
-The templates will be located in the Templates folder of this Git repository.
-Please only download the templates; the rest of the project is intended as a client mod framework which all users, including players, will need to install to make use of these custom assets.
 
-For example, if you have a bundle of custom effect, you will need to add the `CustomEffectsTemplate.cs` to the root game object containing your effects in the EFT-SDK.
+The templates will be located in the `AssetImporter/Templates` folder in this Git repository.
 
-You should match your game object hierarchy and scripts/components to how BSG handles their respective assets.
+Please *only* download the templates; the rest of the project is intended as a client mod framework which all users, including players, will need to install to make use of these custom assets.
 
-NOTE: In the case of custom effects, do *NOT* add the `Effects.cs` script/component to the root game object in your bundle.
+### Adding Custom Effects
 
-Lastly, when you package your mod to be released, you should ensure your bundle(s) are in the corresponding folders so mod users don't come complaining about the mod not working.
+1. You will need to add the `CustomEffectsTemplate.cs` to the root game object containing your effects in the EFT-SDK
+	- You should match your game object hierarchy and scripts/components to how BSG handles their respective assets
+	- Do *NOT* add the `Effects.cs` script/component to the root game object in your bundle
+1. Populate the `EffectsArray` field in the Inspector with your effects
+1. Export your effects bundle
+1. Place your effects bundle in this folder directory when you are packaging your mod: `BepInEx/plugins/Arys-CustomAssetImporter/assets/effects/`
 
 ## Instructions for Mod users
 
 - Download the latest release
-- Extract the .zip to `BepInEx/plugins/` folder
+- Extract the .zip to your SPT folder
