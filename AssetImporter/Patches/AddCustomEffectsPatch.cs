@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using Systems.Effects;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace CustomAssetImporter.Patches
 {
@@ -20,7 +21,7 @@ namespace CustomAssetImporter.Patches
         [PatchPrefix]
         private static void PatchPrefix(Effects __instance)
         {
-            string directory = "assets/effects/";
+            string directory = "assets\\effects\\";
             string[] effectsBundles = AssetLoader.ReadBundleNamesFromDirectory(directory);
             if (!effectsBundles.Any())
             {
@@ -31,21 +32,22 @@ namespace CustomAssetImporter.Patches
             AddCustomEffects(__instance, directory, effectsBundles);
         }
 
-        private static void AddCustomEffects(Effects __instance, string directory, string[] effectsBundles)
+        private static void AddCustomEffects(Effects effects, string directory, string[] effectsBundles)
         {
             List<Effects.Effect> customEffectsList = [];
             foreach (string bundle in effectsBundles)
             {
                 GameObject gameObject = AssetLoader.LoadAsset($"{directory}{bundle}");
-                if (!gameObject.TryGetComponent<CustomEffectsTemplate>(out var customEffects))
+                GameObject instantiatedEffects = Object.Instantiate(gameObject);
+                if (!instantiatedEffects.TryGetComponent<CustomEffectsTemplate>(out var customEffects))
                 {
-                    Plugin.LogSource.LogError($"{bundle} does not contain a valid CustomEffects script. Skipping...");
+                    Plugin.LogSource.LogError($"\"{bundle}\" does not contain a valid CustomEffects script. Skipping...");
                     continue;
                 }
 
                 if (!customEffects.EffectsArray.Any())
                 {
-                    Plugin.LogSource.LogError($"{bundle} CustomEffects script has an empty EffectsArray. Skipping...");
+                    Plugin.LogSource.LogError($"\"{bundle}\" CustomEffects script has an empty EffectsArray. Skipping...");
                     continue;
                 }
 
@@ -54,15 +56,21 @@ namespace CustomAssetImporter.Patches
                     bool hasDuplicates = FrameworkUtil.CheckForDuplicates(customEffectsList, customEffects.EffectsArray, new EffectComparer());
                     if (hasDuplicates)
                     {
-                        Plugin.LogSource.LogError($"{bundle} EffectsArray has an Effect with a conflicting Name property with an existing custom Effect Name. Skipping...");
+                        Plugin.LogSource.LogError($"\"{bundle}\" EffectsArray has an Effect with a conflicting Name property with an existing custom Effect Name. Skipping...");
                         continue;
                     }
                 }
 
                 customEffectsList.AddRange(customEffects.EffectsArray);
+                Plugin.LogSource.LogInfo($"\"{bundle}\"'s effects have been added.");
+
+                foreach (var child in instantiatedEffects.transform.GetChildren())
+                {
+                    child.parent = effects.transform;
+                }
             }
 
-            __instance.EffectsArray.AddRangeToArray([.. customEffectsList]);
+            effects.EffectsArray = effects.EffectsArray.AddRangeToArray([.. customEffectsList]);
         }
     }
 }

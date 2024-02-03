@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -10,6 +11,14 @@ namespace CustomAssetImporter.Util
     internal static class AssetLoader
     {
         private static readonly Dictionary<string, AssetBundle> LoadedBundles = [];
+
+        internal static string[] ReadBundleNamesFromDirectory(string path)
+        {
+            return Directory
+                .GetFiles(Plugin.Directory + path, "*.bundle", SearchOption.AllDirectories)
+                .Select(Path.GetFileName)
+                .ToArray();
+        }
 
         private static AssetBundle LoadBundle(string bundleName)
         {
@@ -55,11 +64,6 @@ namespace CustomAssetImporter.Util
 
             Plugin.LogSource.LogError($"Could not load bundle: {bundlePath}");
             return null;
-        }
-
-        internal static string[] ReadBundleNamesFromDirectory(string path)
-        {
-            return Directory.GetFiles(Plugin.Directory + path, "*.bundle", SearchOption.AllDirectories);
         }
 
         internal static GameObject LoadAsset(string bundle, string assetName = null)
