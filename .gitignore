@@ -72,3 +72,5 @@ crashlytics-build.properties
 /[Aa]ssets/[Ss]treamingAssets/aa/*
 /AssetImporter/obj
 /AssetImporter/References
+/AssetImporter/bin/Release/netstandard2.0
+/AssetImporter/bin/Release/net471

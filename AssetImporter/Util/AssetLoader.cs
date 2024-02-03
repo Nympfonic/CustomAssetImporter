@@ -1,15 +1,44 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace CustomAssetImporter
+namespace CustomAssetImporter.Util
 {
     internal static class AssetLoader
     {
         private static readonly Dictionary<string, AssetBundle> LoadedBundles = [];
+
+        internal static string[] ReadBundleNamesFromDirectory(string path)
+        {
+            return Directory
+                .GetFiles(Plugin.Directory + path, "*.bundle", SearchOption.AllDirectories)
+                .Select(Path.GetFileName)
+                .ToArray();
+        }
+
+        private static AssetBundle LoadBundle(string bundleName)
+        {
+            string bundlePath = bundleName;
+            bundleName = Regex.Match(bundleName, @"[^//]*$").Value;
+            if (LoadedBundles.TryGetValue(bundleName, out var bundle))
+            {
+                return bundle;
+            }
+
+            var requestedBundle = AssetBundle.LoadFromFile(Plugin.Directory + bundlePath);
+            if (requestedBundle != null)
+            {
+                LoadedBundles.Add(bundleName, requestedBundle);
+                return requestedBundle;
+            }
+
+            Plugin.LogSource.LogError($"Could not load bundle: {bundlePath}");
+            return null;
+        }
 
         private static async Task<AssetBundle> LoadBundleAsync(string bundleName)
         {
@@ -37,9 +66,25 @@ namespace CustomAssetImporter
             return null;
         }
 
-        internal static string[] ReadBundleNamesFromDirectory(string path)
+        internal static GameObject LoadAsset(string bundle, string assetName = null)
         {
-            return Directory.GetFiles(path, "*.bundle", SearchOption.AllDirectories);
+            return LoadAsset<GameObject>(bundle, assetName);
+        }
+
+        internal static T LoadAsset<T>(string bundle, string assetName = null) where T : Object
+        {
+            var assetBundle = LoadBundle(bundle);
+
+            var requestedBundle = string.IsNullOrEmpty(assetName)
+                ? assetBundle.LoadAllAssets<T>()[0]
+                : assetBundle.LoadAsset<T>(assetName);
+            if (requestedBundle == null)
+            {
+                Plugin.LogSource.LogError($"Could not load object from bundle: {bundle}, asset list is empty");
+                return null;
+            }
+
+            return requestedBundle;
         }
 
         internal static Task<GameObject> LoadAssetAsync(string bundle, string assetName = null)

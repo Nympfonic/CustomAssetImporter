@@ -1,12 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <AssemblyName>AssetImporter</AssemblyName>
-    <Description>Asset Importer for SPT-AKI</Description>
+    <TargetFramework>net471</TargetFramework>
+    <AssemblyName>Arys-CustomAssetImporter</AssemblyName>
+    <Description>Custom asset importer for SPT-AKI</Description>
     <Version>1.0.0</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
+    <Copyright>Copyright Ⓒ Arys 2024</Copyright>
   </PropertyGroup>
 
   <ItemGroup>

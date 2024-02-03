@@ -1,11 +1,12 @@
 ﻿using BepInEx;
 using BepInEx.Logging;
+using CustomAssetImporter.Patches;
 using System.IO;
 using System.Reflection;
 
 namespace CustomAssetImporter
 {
-    [BepInPlugin("Arys-AssetImporter", "AssetImporter", "1.0.0")]
+    [BepInPlugin("Arys-CustomAssetImporter", "Arys-CustomAssetImporter", "1.0.0")]
     public class Plugin : BaseUnityPlugin
     {
         public static string Directory;
@@ -15,6 +16,9 @@ namespace CustomAssetImporter
         {
             LogSource = Logger;
             Directory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/";
+
+            new AddCustomEffectsPatch().Enable();
+            new EffectsOnDestroyPatch().Enable();
         }
     }
 }
