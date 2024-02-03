@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -11,14 +11,6 @@ namespace CustomAssetImporter.Util
     internal static class AssetLoader
     {
         private static readonly Dictionary<string, AssetBundle> LoadedBundles = [];
-
-        internal static string[] ReadBundleNamesFromDirectory(string path)
-        {
-            return Directory
-                .GetFiles(Plugin.Directory + path, "*.bundle", SearchOption.AllDirectories)
-                .Select(Path.GetFileName)
-                .ToArray();
-        }
 
         private static AssetBundle LoadBundle(string bundleName)
         {
@@ -66,6 +58,35 @@ namespace CustomAssetImporter.Util
             return null;
         }
 
+        /// <summary>
+        /// This method is in newer releases of .NET but not .NET Framework 4.7.1
+        /// </summary>
+        /// <param name="relativeTo">The full path of the source directory</param>
+        /// <param name="path">The full path of the destination directory</param>
+        internal static string GetRelativePath(string relativeTo, string path)
+        {
+            var uri = new Uri(relativeTo);
+            var rel = Uri.UnescapeDataString(uri.MakeRelativeUri(new Uri(path)).ToString()).Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+            if (!rel.Contains(Path.DirectorySeparatorChar.ToString()))
+            {
+                rel = $".{Path.DirectorySeparatorChar}{rel}";
+            }
+            return rel;
+        }
+
+        /// <param name="path">Relative path from <see cref="Plugin.Directory"/></param>
+        /// <returns>A string array containing relative paths for all bundles found within the specified path.</returns>
+        internal static string[] GetBundlePathsFromDirectory(string path)
+        {
+            return Directory.GetFiles(Plugin.Directory + path, "*.bundle", SearchOption.AllDirectories);
+        }
+
+        /// <summary>
+        /// Loads a GameObject from an asset bundle.
+        /// </summary>
+        /// <param name="bundle">Relative path to the bundle</param>
+        /// <param name="assetName">Name of the GameObject to be loaded, including its child GameObjects</param>
+        /// <returns>A GameObject which will need to be instantiated.</returns>
         internal static GameObject LoadAsset(string bundle, string assetName = null)
         {
             return LoadAsset<GameObject>(bundle, assetName);
@@ -87,6 +108,9 @@ namespace CustomAssetImporter.Util
             return requestedBundle;
         }
 
+        /// <summary>
+        /// Asynchronous version of <see cref="LoadAsset(string, string)"/>.
+        /// </summary>
         internal static Task<GameObject> LoadAssetAsync(string bundle, string assetName = null)
         {
             return LoadAssetAsync<GameObject>(bundle, assetName);
