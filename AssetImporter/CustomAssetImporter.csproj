@@ -2,11 +2,12 @@
 
   <PropertyGroup>
     <TargetFramework>net471</TargetFramework>
-    <AssemblyName>AssetImporter</AssemblyName>
-    <Description>Asset Importer for SPT-AKI</Description>
+    <AssemblyName>Arys-CustomAssetImporter</AssemblyName>
+    <Description>Custom asset importer for SPT-AKI</Description>
     <Version>1.0.1</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
+    <Copyright>Copyright Ⓒ Arys 2024</Copyright>
   </PropertyGroup>
 
   <ItemGroup>

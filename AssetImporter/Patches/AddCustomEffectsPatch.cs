@@ -3,10 +3,12 @@ using CustomAssetImporter.Templates;
 using CustomAssetImporter.Util;
 using HarmonyLib;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using Systems.Effects;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace CustomAssetImporter.Patches
 {
@@ -18,43 +20,64 @@ namespace CustomAssetImporter.Patches
         }
 
         [PatchPrefix]
-        private static async void PatchPrefix(Effects __instance)
+        private static void PatchPrefix(Effects __instance)
         {
-            string directory = "assets/systems/effects/particlesystems/";
-            string[] effectsBundles = AssetLoader.ReadBundleNamesFromDirectory(directory);
+            string directory = "assets\\effects\\";
+            string[] effectsBundles = AssetLoader.GetBundlePathsFromDirectory(directory);
 
-            List<Effects.Effect> customEffectsList = [];
-            foreach (string bundle in effectsBundles)
+            if (!effectsBundles.Any())
             {
-                GameObject gameObject = await AssetLoader.LoadAssetAsync($"{directory}{bundle}");
-                if (!gameObject.TryGetComponent<CustomEffectsTemplate>(out var customEffects))
+                Plugin.LogSource.LogWarning($"\"{directory}\" does not contain any bundles. No custom effects will be added.");
+                return;
+            }
+
+            AddCustomEffects(__instance, effectsBundles);
+        }
+
+        private static void AddCustomEffects(Effects effects, string[] effectsBundles)
+        {
+            List<Effects.Effect> customEffectsList = [];
+
+            foreach (string bundlePath in effectsBundles)
+            {
+                string bundleName = Path.GetFileName(bundlePath);
+                string bundleRelativePath = AssetLoader.GetRelativePath(Plugin.Directory, bundlePath);
+
+                GameObject gameObject = AssetLoader.LoadAsset(bundleRelativePath);
+                GameObject instantiatedEffects = Object.Instantiate(gameObject);
+
+                if (!instantiatedEffects.TryGetComponent<CustomEffectsTemplate>(out var customEffects))
                 {
-                    Plugin.LogSource.LogError($"{bundle} does not contain a valid CustomEffects component. Skipping...");
+                    Plugin.LogSource.LogError($"\"{bundleName}\" does not contain a valid CustomEffects script. Skipping...");
                     continue;
                 }
 
                 if (!customEffects.EffectsArray.Any())
                 {
-                    Plugin.LogSource.LogError($"{bundle} CustomEffects component has an empty EffectsArray. Skipping...");
+                    Plugin.LogSource.LogError($"\"{bundleName}\" CustomEffects script has an empty EffectsArray. Skipping...");
                     continue;
                 }
 
-                if (customEffectsList.Any() && CheckForDuplicates(customEffectsList, customEffects.EffectsArray))
+                if (customEffectsList.Any())
                 {
-                    Plugin.LogSource.LogError($"{bundle} EffectsArray has an Effect with a conflicting Name property with an existing custom Effect Name. Skipping...");
-                    continue;
+                    bool hasDuplicates = FrameworkUtil.CheckForDuplicates(customEffectsList, customEffects.EffectsArray, new EffectComparer());
+                    if (hasDuplicates)
+                    {
+                        Plugin.LogSource.LogError($"\"{bundleName}\" EffectsArray has an Effect with a conflicting Name property with an existing custom Effect Name. Skipping...");
+                        continue;
+                    }
                 }
 
                 customEffectsList.AddRange(customEffects.EffectsArray);
+                Plugin.LogSource.LogInfo($"\"{bundleName}\"'s effects have been added.");
+
+                foreach (var child in instantiatedEffects.transform.GetChildren())
+                {
+                    child.parent = effects.transform;
+                }
             }
 
-            Effects.Effect[] originalEffectsArray = __instance.EffectsArray;
-            __instance.EffectsArray = originalEffectsArray.AddRangeToArray([.. customEffectsList]);
-        }
-
-        private static bool CheckForDuplicates(IEnumerable<Effects.Effect> source, IEnumerable<Effects.Effect> target)
-        {
-            return source.Intersect(target, new EffectComparer()).Any();
+            effects.EffectsArray = effects.EffectsArray.AddRangeToArray([.. customEffectsList]);
         }
     }
 }

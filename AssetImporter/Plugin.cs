@@ -1,5 +1,6 @@
 ﻿using BepInEx;
 using BepInEx.Logging;
+using CustomAssetImporter.Patches;
 using System.IO;
 using System.Reflection;
 
@@ -15,6 +16,9 @@ namespace CustomAssetImporter
         {
             LogSource = Logger;
             Directory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/";
+
+            new AddCustomEffectsPatch().Enable();
+            new EffectsOnDestroyPatch().Enable();
         }
     }
 }

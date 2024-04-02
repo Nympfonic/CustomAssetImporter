@@ -4,9 +4,11 @@ using UnityEngine;
 namespace CustomAssetImporter.Templates
 {
     /**
-     * Add this component to your root game object containing your effects, and populate EffectsArray.
-     * Make sure you follow the same setup that BSG does for their effects.bundle (located in "EscapeFromTarkov_Data/StreamingAssets/Windows/assets/systems/effects/particlesystems/").
-     * HOWEVER, do NOT add the Effects component that BSG adds to their effects.bundle - this component is meant to replace that component.
+     * Custom Effects Template
+     * 
+     * Add this script to your root game object containing your effects, and populate the EffectsArray.
+     * Make sure you set up your game objects like BSG does in their effects.bundle (located in "EscapeFromTarkov_Data/StreamingAssets/Windows/assets/systems/effects/particlesystems/").
+     * HOWEVER, do NOT add the Effects script that BSG adds to their root game object - this script is meant to replace that script.
      */
     public class CustomEffectsTemplate : MonoBehaviour
     {
