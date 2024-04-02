@@ -14,7 +14,7 @@ namespace CustomAssetImporter.Patches
     {
         protected override MethodBase GetTargetMethod()
         {
-            return AccessTools.Method(typeof(Effects), "InitDictionaryAndNames");
+            return AccessTools.Method(typeof(Effects), nameof(Effects.InitDictionaryAndNames));
         }
 
         [PatchPrefix]
@@ -54,13 +54,7 @@ namespace CustomAssetImporter.Patches
 
         private static bool CheckForDuplicates(IEnumerable<Effects.Effect> source, IEnumerable<Effects.Effect> target)
         {
-            var duplicates = source.Intersect(target, new EffectComparer());
-            if (duplicates.Any())
-            {
-                return true;
-            }
-
-            return false;
+            return source.Intersect(target, new EffectComparer()).Any();
         }
     }
 }

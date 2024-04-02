@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace CustomAssetImporter
 {
-    [BepInPlugin("Arys-AssetImporter", "AssetImporter", "1.0.0")]
+    [BepInPlugin("com.Arys.CustomAssetImporter", "Arys' Custom Asset Importer", "1.0.1")]
     public class Plugin : BaseUnityPlugin
     {
         public static string Directory;
