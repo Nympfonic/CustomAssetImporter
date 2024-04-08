@@ -40,7 +40,9 @@ namespace CustomAssetImporter
 
             if (!bundles.Any())
             {
+#if DEBUG
                 LogSource.LogInfo($"\"{RigLayoutsDirectory}\" does not contain any bundles. No custom rig layouts will be added.");
+#endif
                 return;
             }
 
