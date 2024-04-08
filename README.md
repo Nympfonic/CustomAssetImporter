@@ -15,21 +15,8 @@ You will need to add the corresponding template script/component for whatever ty
 
 The templates will be located in the `AssetImporter/Templates` folder in this Git repository.
 
-Please *only* download the templates; the rest of the project is intended as a client mod framework which all users, including players, will need to install to make use of these custom assets.
+Please download *only* the templates; the rest of the project is intended as a client mod framework which all users, will need to install to make use of these custom assets.
 
-### Adding Custom Effects
+### So how do I (a modder) use it?
 
-1. You will need to add the `CustomEffectsTemplate.cs` to the root game object containing your effects in the EFT-SDK
-   - You should match your game object hierarchy and scripts/components to how BSG handles their respective assets
-   - Do *NOT* add BSG's `Effects.cs` script/component to the root game object in your bundle
-1. Populate the `EffectsArray` field in the Inspector with your effects
-1. Export your effects bundle
-1. Open your effects bundle with UABEA and modify the following lines in the CustomEffectsTemplate Mono**Script** (not Mono**Behaviour**):
-   - `m_Namespace = "CustomAssetImporter.Templates"`
-   - `m_AssemblyName = "Arys-CustomAssetImporter.dll"`
-   - This is an example of what it should look like after the above changes:
-![ModifyEffectsBundle](README_Images/ModifyEffectsBundle.png)
-1. Place your effects bundle in this folder directory when you are packaging your mod: `BepInEx/plugins/Arys-CustomAssetImporter/assets/effects/`
-1. If everything has been done correctly, the custom effect name can then be referenced by other mods including server mods
-   - For example, say a new explosion effect was added via this framework with the Name `rpg_explosion`
-   - A mod like Choccy's RPG-7 can now use the custom effect name `rpg_explosion` in the `ExplosionType` property of the RPG-7's item template json
+Please visit the [Wiki](https://github.com/Nympfonic/CustomAssetImporter/wiki).
