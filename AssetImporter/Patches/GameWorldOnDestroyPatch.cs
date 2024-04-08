@@ -6,7 +6,10 @@ using System.Reflection;
 
 namespace CustomAssetImporter.Patches
 {
-    internal class EffectsOnDestroyPatch : ModulePatch
+    /// <summary>
+    /// Postfix patch on <see cref="GameWorld.OnDestroy"/> to unload all asset bundles that have an in-raid lifetime.
+    /// </summary>
+    internal class GameWorldOnDestroyPatch : ModulePatch
     {
         protected override MethodBase GetTargetMethod()
         {
@@ -16,7 +19,7 @@ namespace CustomAssetImporter.Patches
         [PatchPostfix]
         private static void PatchPostfix()
         {
-            AssetLoader.UnloadAllBundles();
+            AssetLoader.UnloadAllBundles(true, AssetLoader.LoadedBundlesInRaid);
         }
     }
 }

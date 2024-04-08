@@ -10,13 +10,16 @@ namespace CustomAssetImporter.Util
 {
     internal static class AssetLoader
     {
-        private static readonly Dictionary<string, AssetBundle> LoadedBundles = [];
+        internal static readonly Dictionary<string, AssetBundle> LoadedBundles = [];
+        internal static readonly Dictionary<string, AssetBundle> LoadedBundlesInRaid = [];
 
-        private static AssetBundle LoadBundle(string bundleName)
+        private static AssetBundle LoadBundle(string bundleName, IDictionary<string, AssetBundle> targetDictionary = null)
         {
             string bundlePath = bundleName;
+            targetDictionary ??= LoadedBundles;
+
             bundleName = Regex.Match(bundleName, @"[^//]*$").Value;
-            if (LoadedBundles.TryGetValue(bundleName, out var bundle))
+            if (targetDictionary.TryGetValue(bundleName, out var bundle))
             {
                 return bundle;
             }
@@ -24,7 +27,7 @@ namespace CustomAssetImporter.Util
             var requestedBundle = AssetBundle.LoadFromFile(Plugin.Directory + bundlePath);
             if (requestedBundle != null)
             {
-                LoadedBundles.Add(bundleName, requestedBundle);
+                targetDictionary.Add(bundleName, requestedBundle);
                 return requestedBundle;
             }
 
@@ -32,11 +35,13 @@ namespace CustomAssetImporter.Util
             return null;
         }
 
-        private static async Task<AssetBundle> LoadBundleAsync(string bundleName)
+        private static async Task<AssetBundle> LoadBundleAsync(string bundleName, IDictionary<string, AssetBundle> targetDictionary = null)
         {
             string bundlePath = bundleName;
+            targetDictionary ??= LoadedBundles;
+
             bundleName = Regex.Match(bundleName, @"[^//]*$").Value;
-            if (LoadedBundles.TryGetValue(bundleName, out var bundle))
+            if (targetDictionary.TryGetValue(bundleName, out var bundle))
             {
                 return bundle;
             }
@@ -50,7 +55,7 @@ namespace CustomAssetImporter.Util
             var requestedBundle = bundleRequest.assetBundle;
             if (requestedBundle != null)
             {
-                LoadedBundles.Add(bundleName, requestedBundle);
+                targetDictionary.Add(bundleName, requestedBundle);
                 return requestedBundle;
             }
 
@@ -86,15 +91,17 @@ namespace CustomAssetImporter.Util
         /// </summary>
         /// <param name="bundle">Relative path to the bundle</param>
         /// <param name="assetName">Name of the GameObject to be loaded, including its child GameObjects</param>
-        /// <returns>A GameObject which will need to be instantiated.</returns>
-        internal static GameObject LoadAsset(string bundle, string assetName = null)
+        /// <param name="targetDictionary">The target dictionary to cache the loaded asset bundle in</param>
+        /// <returns>A GameObject prefab which will need to be instantiated.</returns>
+        internal static GameObject LoadAsset(string bundle, string assetName = null, IDictionary<string, AssetBundle> targetDictionary = null)
         {
-            return LoadAsset<GameObject>(bundle, assetName);
+            return LoadAsset<GameObject>(bundle, assetName, targetDictionary);
         }
 
-        internal static T LoadAsset<T>(string bundle, string assetName = null) where T : Object
+        internal static T LoadAsset<T>(string bundle, string assetName = null, IDictionary<string, AssetBundle> targetDictionary = null)
+            where T : Object
         {
-            var assetBundle = LoadBundle(bundle);
+            var assetBundle = LoadBundle(bundle, targetDictionary);
 
             var requestedBundle = string.IsNullOrEmpty(assetName)
                 ? assetBundle.LoadAllAssets<T>()[0]
@@ -109,16 +116,17 @@ namespace CustomAssetImporter.Util
         }
 
         /// <summary>
-        /// Asynchronous version of <see cref="LoadAsset(string, string)"/>.
+        /// Asynchronous version of <see cref="LoadAsset(string, string, IDictionary{string, AssetBundle})"/>.
         /// </summary>
-        internal static Task<GameObject> LoadAssetAsync(string bundle, string assetName = null)
+        internal static Task<GameObject> LoadAssetAsync(string bundle, string assetName = null, IDictionary<string, AssetBundle> targetDictionary = null)
         {
-            return LoadAssetAsync<GameObject>(bundle, assetName);
+            return LoadAssetAsync<GameObject>(bundle, assetName, targetDictionary);
         }
 
-        internal static async Task<T> LoadAssetAsync<T>(string bundle, string assetName = null) where T : Object
+        internal static async Task<T> LoadAssetAsync<T>(string bundle, string assetName = null, IDictionary<string, AssetBundle> targetDictionary = null)
+            where T : Object
         {
-            var assetBundle = await LoadBundleAsync(bundle);
+            var assetBundle = await LoadBundleAsync(bundle, targetDictionary);
 
             var assetBundleRequest = string.IsNullOrEmpty(assetName)
                 ? assetBundle.LoadAllAssetsAsync<T>()
@@ -137,14 +145,58 @@ namespace CustomAssetImporter.Util
             return (T)assetBundleRequest.allAssets[0];
         }
 
-        internal static void UnloadAllBundles()
+        /// <summary>
+        /// Loads all root level GameObjects from an asset bundle.
+        /// </summary>
+        /// <param name="bundle">Relative path to the bundle</param>
+        /// <param name="targetDictionary">The target dictionary to cache the loaded asset bundle in</param>
+        /// <returns>An array of GameObject prefabs from the root level of the bundle.</returns>
+        internal static GameObject[] LoadAllAssets(string bundle, IDictionary<string, AssetBundle> targetDictionary = null)
         {
-            foreach (var bundle in LoadedBundles.Values)
+            return LoadAllAssets<GameObject>(bundle, targetDictionary);
+        }
+
+        internal static T[] LoadAllAssets<T>(string bundle, IDictionary<string, AssetBundle> targetDictionary = null)
+            where T : Object
+        {
+            var assetBundle = LoadBundle(bundle, targetDictionary);
+
+            var requestedBundle = assetBundle.LoadAllAssets<T>();
+            if (requestedBundle.IsNullOrEmpty())
             {
-                bundle.Unload(true);
+                Plugin.LogSource.LogError($"Could not load objects from bundle: {bundle}, asset list is empty");
+                return [];
             }
 
-            LoadedBundles.Clear();
+            return requestedBundle;
+        }
+
+        internal static void UnloadBundleByPath(string bundlePath, bool unloadAllLoadedObjects, IDictionary<string, AssetBundle> targetDictionary)
+        {
+            if (targetDictionary.TryGetValue(bundlePath, out var bundle))
+            {
+                bundle.Unload(unloadAllLoadedObjects);
+                targetDictionary.Remove(bundlePath);
+            }
+        }
+
+        internal static void UnloadBundle(AssetBundle bundle, bool unloadAllLoadedObjects, IDictionary<string, AssetBundle> targetDictionary)
+        {
+            if (targetDictionary.TryGetKey(bundle, out var key))
+            {
+                bundle.Unload(unloadAllLoadedObjects);
+                targetDictionary.Remove(key);
+            }
+        }
+
+        internal static void UnloadAllBundles(bool unloadAllLoadedObjects, IDictionary<string, AssetBundle> targetDictionary)
+        {
+            foreach (var bundle in targetDictionary.Values)
+            {
+                bundle.Unload(unloadAllLoadedObjects);
+            }
+
+            targetDictionary.Clear();
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using CustomAssetImporter.Templates;
 using CustomAssetImporter.Util.Comparers;
+using EFT.UI.DragAndDrop;
 using HarmonyLib;
 using System.Collections.Generic;
 using System.IO;
@@ -18,7 +19,6 @@ namespace CustomAssetImporter.Util
 
             foreach (string bundlePath in effectsBundles)
             {
-                string bundleName = Path.GetFileName(bundlePath);
                 string bundleRelativePath = AssetLoader.GetRelativePath(Plugin.Directory, bundlePath);
 
                 GameObject gameObject = AssetLoader.LoadAsset(bundleRelativePath);
@@ -26,13 +26,13 @@ namespace CustomAssetImporter.Util
 
                 if (!instantiatedEffects.TryGetComponent<CustomEffectsTemplate>(out var customEffects))
                 {
-                    Plugin.LogSource.LogError($"\"{bundleName}\" does not contain a valid CustomEffects script. Skipping...");
+                    Plugin.LogSource.LogError($"\"{bundleRelativePath}\" prefab is missing a {nameof(CustomEffectsTemplate)} component. Skipping...");
                     continue;
                 }
 
                 if (!customEffects.EffectsArray.Any())
                 {
-                    Plugin.LogSource.LogError($"\"{bundleName}\" CustomEffects script has an empty EffectsArray. Skipping...");
+                    Plugin.LogSource.LogError($"\"{bundleRelativePath}\" prefab\'s {nameof(CustomEffectsTemplate)} component has an empty {nameof(CustomEffectsTemplate.EffectsArray)}. Skipping...");
                     continue;
                 }
 
@@ -42,13 +42,15 @@ namespace CustomAssetImporter.Util
                     bool hasDuplicates = CheckForDuplicates(customEffectsList, customEffects.EffectsArray, new EffectComparer());
                     if (hasDuplicates)
                     {
-                        Plugin.LogSource.LogError($"\"{bundleName}\" EffectsArray has an Effect with a conflicting Name property with an existing custom Effect Name. Skipping...");
+                        Plugin.LogSource.LogError($"\"{bundleRelativePath}\" prefab\'s {nameof(CustomEffectsTemplate.EffectsArray)} has an Effect with a conflicting Name property with an existing custom Effect Name. Skipping...");
                         continue;
                     }
                 }
 
                 customEffectsList.AddRange(customEffects.EffectsArray);
-                Plugin.LogSource.LogInfo($"\"{bundleName}\"'s effects have been added.");
+#if DEBUG
+                Plugin.LogSource.LogInfo($"\"{bundleRelativePath}\"\'s effects have been added.");
+#endif
 
                 foreach (var child in instantiatedEffects.transform.GetChildren())
                 {
@@ -59,9 +61,36 @@ namespace CustomAssetImporter.Util
             effects.EffectsArray = effects.EffectsArray.AddRangeToArray([.. customEffectsList]);
         }
 
-        internal static void AddCustomRigLayouts()
+        internal static void AddCustomRigLayouts(IDictionary<string, object> rigLayoutDictionary, string[] rigLayoutBundles)
         {
+            foreach (string bundlePath in rigLayoutBundles)
+            {
+                string bundleRelativePath = AssetLoader.GetRelativePath(Plugin.Directory, bundlePath);
 
+                GameObject[] prefabs = AssetLoader.LoadAllAssets(bundleRelativePath);
+                foreach (var prefab in prefabs)
+                {
+                    if (!prefab.TryGetComponent<ContainedGridsView>(out var gridView))
+                    {
+                        Plugin.LogSource.LogError($"\"{bundleRelativePath}\"\'s rig layout \"{prefab.name}\" is missing a {nameof(ContainedGridsView)} component.");
+                        continue;
+                    }
+                    
+                    string key = $"UI/Rig Layouts/{prefab.name}";
+                    if (rigLayoutDictionary.ContainsKey(key))
+                    {
+                        Plugin.LogSource.LogError($"\"{bundleRelativePath}\"\'s rig layout \"{prefab.name}\" conflicts with an existing key in the rig layout dictionary.");
+                        continue;
+                    }
+
+                    rigLayoutDictionary.Add(key, gridView);
+#if DEBUG
+                    Plugin.LogSource.LogInfo($"\"{bundleRelativePath}\"\'s rig layout \"{prefab.name}\" has been added.");
+#endif
+                }
+
+                AssetLoader.UnloadBundleByPath(bundleRelativePath, false, AssetLoader.LoadedBundles);
+            }
         }
 
         private static bool CheckForDuplicates<T>(IEnumerable<T> source, IEnumerable<T> target, IEqualityComparer<T> comparer)

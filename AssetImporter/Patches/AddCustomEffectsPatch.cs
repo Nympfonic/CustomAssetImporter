@@ -17,16 +17,17 @@ namespace CustomAssetImporter.Patches
         [PatchPrefix]
         private static void PatchPrefix(Effects __instance)
         {
-            string directory = Plugin.EffectsDirectory;
-            string[] effectsBundles = AssetLoader.GetBundlePathsFromDirectory(directory);
+            string[] bundles = AssetLoader.GetBundlePathsFromDirectory(Plugin.EffectsDirectory);
 
-            if (!effectsBundles.Any())
+            if (!bundles.Any())
             {
-                Plugin.LogSource.LogWarning($"\"{directory}\" does not contain any bundles. No custom effects will be added.");
+#if DEBUG
+                Plugin.LogSource.LogInfo($"\"{Plugin.EffectsDirectory}\" does not contain any bundles. No custom effects will be added.");
+#endif
                 return;
             }
 
-            FrameworkHelper.AddCustomEffects(__instance, effectsBundles);
+            FrameworkHelper.AddCustomEffects(__instance, bundles);
         }
     }
 }
