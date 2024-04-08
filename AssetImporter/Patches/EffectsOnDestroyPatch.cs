@@ -10,7 +10,7 @@ namespace CustomAssetImporter.Patches
     {
         protected override MethodBase GetTargetMethod()
         {
-            return AccessTools.Method(typeof(GameWorld), "OnDestroy");
+            return AccessTools.Method(typeof(GameWorld), nameof(GameWorld.OnDestroy));
         }
 
         [PatchPostfix]

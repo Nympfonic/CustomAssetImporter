@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Systems.Effects;
 
-namespace CustomAssetImporter.Util
+namespace CustomAssetImporter.Util.Comparers
 {
     internal class EffectComparer : IEqualityComparer<Effects.Effect>
     {
