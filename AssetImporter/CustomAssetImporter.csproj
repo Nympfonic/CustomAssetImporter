@@ -3,12 +3,18 @@
   <PropertyGroup>
     <TargetFramework>net471</TargetFramework>
     <AssemblyName>Arys-CustomAssetImporter</AssemblyName>
-    <Description>Custom asset importer for SPT-AKI</Description>
-    <Version>1.0.1</Version>
+    <Description>Custom asset importer for SPT</Description>
+    <Version>1.1.1</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
     <Copyright>Copyright Ⓒ Arys 2024</Copyright>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="References\**" />
+    <EmbeddedResource Remove="References\**" />
+    <None Remove="References\**" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />
@@ -22,38 +28,38 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="Aki.Reflection">
-      <HintPath>References\Aki.Reflection.dll</HintPath>
-    </Reference>
     <Reference Include="Assembly-CSharp">
-      <HintPath>References\Assembly-CSharp.dll</HintPath>
+      <HintPath>..\..\SPT Assembly Refs\39x\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="Comfort">
-      <HintPath>References\Comfort.dll</HintPath>
+      <HintPath>..\..\SPT Assembly Refs\39x\Comfort.dll</HintPath>
     </Reference>
     <Reference Include="Comfort.Unity">
-      <HintPath>References\Comfort.Unity.dll</HintPath>
+      <HintPath>..\..\SPT Assembly Refs\39x\Comfort.Unity.dll</HintPath>
+    </Reference>
+    <Reference Include="spt-reflection">
+      <HintPath>..\..\SPT Assembly Refs\39x\spt-reflection.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>References\UnityEngine.dll</HintPath>
+      <HintPath>..\..\SPT Assembly Refs\39x\UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.AssetBundleModule">
-      <HintPath>References\UnityEngine.AssetBundleModule.dll</HintPath>
+      <HintPath>..\..\SPT Assembly Refs\39x\UnityEngine.AssetBundleModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>References\UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>..\..\SPT Assembly Refs\39x\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.InputLegacyModule">
-      <HintPath>References\UnityEngine.InputLegacyModule.dll</HintPath>
+      <HintPath>..\..\SPT Assembly Refs\39x\UnityEngine.InputLegacyModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.PhysicsModule">
-      <HintPath>References\UnityEngine.PhysicsModule.dll</HintPath>
+      <HintPath>..\..\SPT Assembly Refs\39x\UnityEngine.PhysicsModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI">
-      <HintPath>References\UnityEngine.UI.dll</HintPath>
+      <HintPath>..\..\SPT Assembly Refs\39x\UnityEngine.UI.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UIModule">
-      <HintPath>References\UnityEngine.UIModule.dll</HintPath>
+      <HintPath>..\..\SPT Assembly Refs\39x\UnityEngine.UIModule.dll</HintPath>
     </Reference>
   </ItemGroup>
 </Project>

@@ -3,7 +3,7 @@ using Systems.Effects;
 
 namespace CustomAssetImporter.Util.Comparers
 {
-    internal class EffectComparer : IEqualityComparer<Effects.Effect>
+    public class EffectComparer : IEqualityComparer<Effects.Effect>
     {
         public bool Equals(Effects.Effect x, Effects.Effect y)
         {

@@ -3,7 +3,6 @@ using CustomAssetImporter.Util.Comparers;
 using EFT.UI.DragAndDrop;
 using HarmonyLib;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using Systems.Effects;
 using UnityEngine;
@@ -19,20 +18,20 @@ namespace CustomAssetImporter.Util
 
             foreach (string bundlePath in effectsBundles)
             {
-                string bundleRelativePath = AssetLoader.GetRelativePath(Plugin.Directory, bundlePath);
+                string bundleRelativePath = AssetLoader.GetRelativePath(ACAIPlugin.Directory, bundlePath);
 
                 GameObject gameObject = AssetLoader.LoadAsset(bundleRelativePath);
                 GameObject instantiatedEffects = Object.Instantiate(gameObject);
 
                 if (!instantiatedEffects.TryGetComponent<CustomEffectsTemplate>(out var customEffects))
                 {
-                    Plugin.LogSource.LogError($"\"{bundleRelativePath}\" prefab is missing a {nameof(CustomEffectsTemplate)} component. Skipping...");
+                    ACAIPlugin.LogSource.LogError($"\"{bundleRelativePath}\" prefab is missing a {nameof(CustomEffectsTemplate)} component. Skipping...");
                     continue;
                 }
 
                 if (!customEffects.EffectsArray.Any())
                 {
-                    Plugin.LogSource.LogError($"\"{bundleRelativePath}\" prefab\'s {nameof(CustomEffectsTemplate)} component has an empty {nameof(CustomEffectsTemplate.EffectsArray)}. Skipping...");
+                    ACAIPlugin.LogSource.LogError($"\"{bundleRelativePath}\" prefab\'s {nameof(CustomEffectsTemplate)} component has an empty {nameof(CustomEffectsTemplate.EffectsArray)}. Skipping...");
                     continue;
                 }
 
@@ -42,14 +41,14 @@ namespace CustomAssetImporter.Util
                     bool hasDuplicates = CheckForDuplicates(customEffectsList, customEffects.EffectsArray, new EffectComparer());
                     if (hasDuplicates)
                     {
-                        Plugin.LogSource.LogError($"\"{bundleRelativePath}\" prefab\'s {nameof(CustomEffectsTemplate.EffectsArray)} has an Effect with a conflicting Name property with an existing custom Effect Name. Skipping...");
+                        ACAIPlugin.LogSource.LogError($"\"{bundleRelativePath}\" prefab\'s {nameof(CustomEffectsTemplate.EffectsArray)} has an Effect with a conflicting Name property with an existing custom Effect Name. Skipping...");
                         continue;
                     }
                 }
 
                 customEffectsList.AddRange(customEffects.EffectsArray);
 #if DEBUG
-                Plugin.LogSource.LogInfo($"\"{bundleRelativePath}\"\'s effects have been added.");
+                Plugin.LogSource.LogDebug($"\"{bundleRelativePath}\"\'s effects have been added.");
 #endif
 
                 foreach (var child in instantiatedEffects.transform.GetChildren())
@@ -65,27 +64,27 @@ namespace CustomAssetImporter.Util
         {
             foreach (string bundlePath in rigLayoutBundles)
             {
-                string bundleRelativePath = AssetLoader.GetRelativePath(Plugin.Directory, bundlePath);
+                string bundleRelativePath = AssetLoader.GetRelativePath(ACAIPlugin.Directory, bundlePath);
 
                 GameObject[] prefabs = AssetLoader.LoadAllAssets(bundleRelativePath);
                 foreach (var prefab in prefabs)
                 {
                     if (!prefab.TryGetComponent<ContainedGridsView>(out var gridView))
                     {
-                        Plugin.LogSource.LogError($"\"{bundleRelativePath}\"\'s rig layout \"{prefab.name}\" is missing a {nameof(ContainedGridsView)} component.");
+                        ACAIPlugin.LogSource.LogError($"\"{bundleRelativePath}\"\'s rig layout \"{prefab.name}\" is missing a {nameof(ContainedGridsView)} component.");
                         continue;
                     }
-                    
+
                     string key = $"UI/Rig Layouts/{prefab.name}";
                     if (rigLayoutDictionary.ContainsKey(key))
                     {
-                        Plugin.LogSource.LogError($"\"{bundleRelativePath}\"\'s rig layout \"{prefab.name}\" conflicts with an existing key in the rig layout dictionary.");
+                        ACAIPlugin.LogSource.LogError($"\"{bundleRelativePath}\"\'s rig layout \"{prefab.name}\" conflicts with an existing key in the rig layout dictionary.");
                         continue;
                     }
 
                     rigLayoutDictionary.Add(key, gridView);
 #if DEBUG
-                    Plugin.LogSource.LogInfo($"\"{bundleRelativePath}\"\'s rig layout \"{prefab.name}\" has been added.");
+                    Plugin.LogSource.LogDebug($"\"{bundleRelativePath}\"\'s rig layout \"{prefab.name}\" has been added.");
 #endif
                 }
 

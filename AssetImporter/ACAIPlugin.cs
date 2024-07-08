@@ -11,11 +11,11 @@ using System.Reflection;
 
 namespace CustomAssetImporter
 {
-    [BepInPlugin("com.Arys.CustomAssetImporter", "Arys' Custom Asset Importer", "1.1.0")]
-    public class Plugin : BaseUnityPlugin
+    [BepInPlugin("com.Arys.CustomAssetImporter", "Arys' Custom Asset Importer", "1.1.1")]
+    public class ACAIPlugin : BaseUnityPlugin
     {
-        internal const string EffectsDirectory = "assets\\effects\\";
-        internal const string RigLayoutsDirectory = "assets\\rig_layouts\\";
+        internal const string EffectsPath = "assets\\effects\\";
+        internal const string RigLayoutsPath = "assets\\rig_layouts\\";
 
         internal static string Directory;
         internal static ManualLogSource LogSource;
@@ -36,12 +36,12 @@ namespace CustomAssetImporter
 
         private void InitCustomRigLayouts()
         {
-            string[] bundles = AssetLoader.GetBundlePathsFromDirectory(RigLayoutsDirectory);
+            string[] bundles = AssetLoader.GetBundlePathsFromDirectory(RigLayoutsPath);
 
             if (!bundles.Any())
             {
 #if DEBUG
-                LogSource.LogInfo($"\"{RigLayoutsDirectory}\" does not contain any bundles. No custom rig layouts will be added.");
+                LogSource.LogInfo($"\"{RigLayoutsPath}\" does not contain any bundles. No custom rig layouts will be added.");
 #endif
                 return;
             }
